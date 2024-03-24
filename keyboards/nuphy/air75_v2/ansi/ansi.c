@@ -25,6 +25,7 @@ extern bool f_dev_reset_press;
 extern bool f_bat_num_show;
 extern bool f_rgb_test_press;
 extern bool f_bat_hold;
+extern bool f_is_leading;
 extern uint16_t  no_act_time;
 extern uint8_t   rf_sw_temp;
 extern uint16_t  rf_sw_press_delay;
@@ -217,6 +218,10 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         case RGB_TEST:
             f_rgb_test_press = record->event.pressed;
             return false;
+
+        case QK_LEAD:
+            f_is_leading = record->event.pressed;
+            return true;
 
         default:
             return true;

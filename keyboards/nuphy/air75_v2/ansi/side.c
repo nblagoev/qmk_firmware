@@ -84,6 +84,7 @@ extern uint16_t        rf_link_show_time;
 extern bool            f_bat_hold;
 extern bool            f_sys_show;
 extern bool            f_sleep_show;
+extern bool            f_is_leading;
 
 void side_ws2812_setleds(rgb_led_t *ledarray, uint16_t leds);
 void rgb_matrix_update_pwm_buffers(void);
@@ -294,9 +295,33 @@ void sleep_sw_led_show(void) {
 }
 
 /**
+ * @brief  leader_led_show.
+ */
+void leader_led_show(void) {
+    static uint32_t leader_show_timer = 0;
+    static bool     leader_show_flag  = false;
+
+    if (f_is_leading) {
+        f_is_leading      = false;
+        leader_show_timer = timer_read32();
+        leader_show_flag  = true;
+    }
+
+    if (leader_show_flag) {
+        set_left_rgb(0x93, 0x05, 0xFF);
+
+        if (timer_elapsed32(leader_show_timer) >= LEADER_TIMEOUT) {
+            leader_show_flag = false;
+        }
+    }
+}
+
+/**
  * @brief  sys_led_show.
  */
 void sys_led_show(void) {
+    leader_led_show();
+
     if (dev_info.link_mode == LINK_USB) {
         if (host_keyboard_led_state().caps_lock) {
             set_left_rgb(0X00, 0x80, 0x80);
@@ -308,6 +333,7 @@ void sys_led_show(void) {
             set_left_rgb(0X00, 0x80, 0x80);
         }
     }
+
 }
 
 /**
